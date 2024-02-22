@@ -19,16 +19,19 @@ const vuetify = createVuetify({
 
 // Router
 import { createRouter, createWebHashHistory } from "vue-router";
+// import Dashboard from "./components/Dashboard.vue";
+import ProductsLister from "./components/ProductsLister.vue";
+// import Cart from "./components/Cart.vue";
+import Chat from "./components/Chat.vue";
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
-    { path: "/", component: Dashboard },
-    { path: "/persons", component: PersonsLister },
-    { path: "/projects", component: ProjectsLister },
-    { path: "/map", component: ProjectsMap },
+    // { path: "/", component: Dashboard },
+    { path: "/products", component: ProductsLister },
+    // { path: "/cart", component: Cart },
     { path: "/chat", component: Chat },
   ],
 });
 
-createApp(App).mount("#app");
+createApp(App).use(vuetify).use(router).mount("#app");

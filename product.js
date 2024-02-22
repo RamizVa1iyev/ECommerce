@@ -4,9 +4,7 @@ const schema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     price: { type: Number, required: true },
-    category: {
-      name: { type: Number, required: true },
-    },
+    categoryName: { type: String, required: true },
     stockAmount: { type: Number, required: true },
   },
   {
@@ -45,7 +43,6 @@ module.exports = {
       let aggregation = [
         { $sort: { name: 1 } },
         { $match: { name: { $regex: new RegExp(req.query.search, "i") } } },
-        { $set: { members: { $size: "$members" } } },
       ];
       aggregation.push({ $skip: parseInt(req.query.skip) || 0 });
       aggregation.push({ $limit: parseInt(req.query.limit) || 10 });
@@ -91,16 +88,16 @@ module.exports = {
   delete: (req, res) => {
     const _id = req.query._id;
     model
-      .findOneAndUpdate({ _id }, req.body, { new: true, runValidators: true })
-      .then((updated) => {
-        if (updated) {
-          res.json(updated);
+      .findOneAndDelete({ _id })
+      .then((deleted) => {
+        if (deleted) {
+          res.json(deleted);
         } else {
           res.status(404).json({ error: "No such object" });
         }
       })
       .catch((err) => {
-        res.status(406).json({ error: err.message });
+        res.status(400).json({ error: err.message });
       });
   },
 };
