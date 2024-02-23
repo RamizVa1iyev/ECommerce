@@ -7,11 +7,23 @@ module.exports = (wsInstance) => (ws, req) => {
       console.error("WS error:", err.message);
       return;
     }
+    if (data.event == "PRODUCT") {
+      wsInstance.getWss().clients.forEach((client) => {
+        client.send(
+          JSON.stringify({
+            event: "PRODUCT",
+          })
+        );
+        return;
+      });
+    }
+
     if (data.event == "INIT") {
       console.log("WS init session:", data.session);
       ws.session = data.session;
       return;
     }
+
     data.sender = null;
     if (req.session && req.session.passport && req.session.passport.user)
       data.sender = req.session.passport.user;

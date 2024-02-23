@@ -2,12 +2,12 @@ const mongoose = require("mongoose");
 
 const schema = new mongoose.Schema(
   {
-    totalPrice: { type: Number, required: true },
-    userId: { type: mongoose.ObjectId, ref: "user" },
+    price: { type: Number, required: true },
+    userName: { type: String, required: true },
     cartItems: {
       type: [
         {
-          productId: { type: mongoose.ObjectId, ref: "product" },
+          productName: { type: String, required: true },
           count: { type: Number, required: true },
           price: { type: Number, required: true },
         },
@@ -15,11 +15,6 @@ const schema = new mongoose.Schema(
       required: false,
       default: [],
     },
-    price: { type: Number, required: true },
-    category: {
-      name: { type: Number, required: true },
-    },
-    stockAmount: { type: Number, required: true },
   },
   {
     versionKey: false,
@@ -49,6 +44,18 @@ module.exports = {
           } else {
             res.status(404).json({ error: "No such object" });
           }
+        })
+        .catch((err) => {
+          res.status(408).json({ error: err.message });
+        });
+    } else {
+      let aggregation = [{ $sort: { price: 1 } }];
+      aggregation.push({ $skip: parseInt(req.query.skip) || 0 });
+      aggregation.push({ $limit: parseInt(req.query.limit) || 10 });
+      model
+        .aggregate(aggregation)
+        .then((data) => {
+          res.json(data);
         })
         .catch((err) => {
           res.status(408).json({ error: err.message });
@@ -87,16 +94,16 @@ module.exports = {
   delete: (req, res) => {
     const _id = req.query._id;
     model
-      .findOneAndUpdate({ _id }, req.body, { new: true, runValidators: true })
-      .then((updated) => {
-        if (updated) {
-          res.json(updated);
+      .findOneAndDelete({ _id })
+      .then((deleted) => {
+        if (deleted) {
+          res.json(deleted);
         } else {
           res.status(404).json({ error: "No such object" });
         }
       })
       .catch((err) => {
-        res.status(406).json({ error: err.message });
+        res.status(400).json({ error: err.message });
       });
   },
 };
